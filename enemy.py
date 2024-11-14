@@ -4,7 +4,7 @@ from config import *
 
 
 class Enemy(agent):
-    def __init__(self, hp, speed, attack, range, attack_interval, armor_p, armor_m, path):
+    def __init__(self, hp, speed, attack, range, attack_interval, armor_p, armor_m, path, able_block=True):
         super().__init__(hp, attack, attack_interval, armor_p, armor_m)
         x, y = path[0]
         self.x = x  # 位置X
@@ -13,27 +13,58 @@ class Enemy(agent):
         self.range = range  # 攻击范围
         self.path = path  # 移动路径
         self.path_idx = 1  # 当前路径点
+        self.blocked_by = None
+        self.able_block = able_block
 
-    def is_blocked(self, x, y):
-        return round(self.x) == x and round(self.y) == y
+    def action(self, operators):
+        path_idx_next, x_next, y_next = self.try_move()
+        # 是否被干员挡住,返回挡住的干员,否则返回None
+        block_op = self.is_blocked(operators, x_next, y_next)
+        self.cooldown_tick()
+        self.attack(operators, block_op)
+        if block_op:
+            return
+        self.move(path_idx_next, x_next, y_next)
+
+    def is_blocked(self, operators, x, y):
+        for operator in operators:
+            if operator.can_block(self, x, y):
+                self.blocked_by = operator
+                return operator
+        return None
 
     def in_range(self, target):
         return (target.x - self.x)**2 + (target.y - self.y)**2 <= self.range**2
 
-    def move(self):
+    def try_move(self):
         x, y = self.path[self.path_idx]
+        path_idx_next = self.path_idx
         vec = [x - self.x, y - self.y]
         l = (vec[0]**2 + vec[1]**2)**0.5
         vec = [vec[0]/l, vec[1]/l]
-        self.x += vec[0]*self.speed
-        self.y += vec[1]*self.speed
+        x_next = self.x + vec[0]*self.speed
+        y_next = self.y + vec[1]*self.speed
         if l < self.speed:
-            self.path_idx = self.path_idx+1 if self.path_idx < len(
+            path_idx_next = self.path_idx+1 if self.path_idx < len(
                 self.path) - 1 else -1
+        return path_idx_next, x_next, y_next
+
+    def move(self, path_idx_next, x_next, y_next):
+        self.path_idx = path_idx_next
+        self.x = x_next
+        self.y = y_next
 
     def cooldown_tick(self):
         if self.cooldown > 0:
             self.cooldown -= 1
+
+    def block_release(self):
+        if self.blocked_by:
+            self.blocked_by.block_release(self)
+            self.blocked_by = None
+
+    def die(self):
+        self.block_release()
 
     def draw(self, screen):
         draw.circle(screen, (255, 0, 0),

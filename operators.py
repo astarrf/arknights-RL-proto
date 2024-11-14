@@ -5,10 +5,12 @@ from attack import agent
 
 
 class Operator(agent):
-    def __init__(self, x, y, hp, attack, range: list[list], attack_speed, armor_p, armor_m, facing=0):
+    def __init__(self, x, y, hp, attack, range: list[list], attack_speed, armor_p, armor_m, block_num=0, facing=0):
         super().__init__(hp, attack, attack_speed, armor_p, armor_m)
         self.x = x
         self.y = y
+        self.block_num = block_num
+        self.is_blocking = []
         self.facing = facing
         self.range = []
         for chunk in range:
@@ -22,8 +24,35 @@ class Operator(agent):
                 pos = [-chunk[1] + x, chunk[0] + y]  # 向上
             self.range.append(pos)
 
+    def action(self, enemies):
+        self.cooldown_tick()
+        self.attack(enemies)
+
+    def can_block(self, enemy, x, y):
+        if len(self.is_blocking) == self.block_num:
+            return False
+        if (enemy.x-self.x)**2 + (enemy.y-self.y)**2 <= 0.0625:
+            vec = [x-self.x, y-self.y]
+            l = (vec[0]**2 + vec[1]**2)**0.5
+            vec = [vec[0]/l*0.25, vec[1]/l*0.25]
+            enemy.x = self.x+vec[0]
+            enemy.y = self.y+vec[1]
+            self.is_blocking.append(enemy)
+            return True
+        if round(x) == self.x and round(y) == self.y:
+            self.is_blocking.append(enemy)
+            return True
+        return False
+
+    def block_release(self, enemy):
+        self.is_blocking.remove(enemy)
+
     def in_range(self, target):
         return [round(target.x), round(target.y)] in self.range
+
+    def retreat(self):
+        for enemy in self.is_blocking:
+            enemy.blocked_by = None
 
     def draw(self, screen):
         draw.circle(screen, (0, 255, 0),
