@@ -1,4 +1,5 @@
 from pygame import draw
+import numpy as np
 from attack import agent
 from config import *
 
@@ -15,6 +16,17 @@ class Enemy(agent):
         self.path_idx = 1  # 当前路径点
         self.blocked_by = None
         self.able_block = able_block
+        self.path_distance = [0]*(len(path)-1)
+        for i in range(len(path)-1):
+            x1, y1 = path[i]
+            x2, y2 = path[i+1]
+            self.path_distance[i] = ((x2-x1)**2 + (y2-y1)**2)**0.5
+        self.remaining_distance = np.sum(self.path_distance)
+
+    def update_distance(self):
+        x, y = self.path[self.path_idx]
+        self.remaining_distance = (
+            (self.x-x)**2+(self.y-y)**2)**0.5 + np.sum(self.path_distance[self.path_idx:])
 
     def action(self, operators):
         path_idx_next, x_next, y_next = self.try_move()
@@ -53,6 +65,7 @@ class Enemy(agent):
         self.path_idx = path_idx_next
         self.x = x_next
         self.y = y_next
+        self.update_distance()
 
     def cooldown_tick(self):
         if self.cooldown > 0:
