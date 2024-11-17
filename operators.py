@@ -26,7 +26,7 @@ class Operator(agent):
 
     def action(self, enemies):
         self.cooldown_tick()
-        self.attack(enemies, self.is_blocking)
+        self.attack(self.x, self.y, enemies, self.is_blocking)
 
     def can_block(self, enemy, x, y):
         if len(self.is_blocking) == self.block_num:

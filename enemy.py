@@ -32,7 +32,7 @@ class Enemy(agent):
         # 是否被干员挡住,返回挡住的干员,否则返回None
         block_op = self.is_blocked(operators, x_next, y_next)
         self.cooldown_tick()
-        self.attack(operators, block_op)
+        self.attack(self.x, self.y, operators, [block_op])
         if block_op:
             return
         self.move(path_idx_next, x_next, y_next)
