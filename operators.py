@@ -11,7 +11,7 @@ class Operator(agent):
         self.block_num = block_num
         self.is_blocking = []
         self.facing = facing
-        abs_range = []
+        self.range = []
         for chunk in range:
             if facing == 0:
                 pos = [chunk[0] + x, chunk[1] + y]  # 向右
@@ -21,12 +21,20 @@ class Operator(agent):
                 pos = [-chunk[0] + x, -chunk[1] + y]  # 向左
             elif facing == 3:
                 pos = [-chunk[1] + x, chunk[0] + y]  # 向上
-            abs_range.append(pos)
-        super().__init__(hp, attack, attack_speed, armor_p, armor_m, abs_range)
+            self.range.append(pos)
+        super().__init__(hp, attack, attack_speed, armor_p, armor_m)
+
+    def search_target(self, enemies):
+        target_list = []
+        for enemy in enemies:
+            if self.in_range(enemy):
+                target_list.append(enemy)
+        return target_list
 
     def action(self, enemies):
         self.cooldown_tick()
-        self.attack(self.x, self.y, enemies, self.is_blocking)
+        target_list = self.search_target(enemies)
+        self.attack(self.x, self.y, target_list, self.is_blocking)
 
     def can_block(self, enemy, x, y):
         if len(self.is_blocking) == self.block_num:

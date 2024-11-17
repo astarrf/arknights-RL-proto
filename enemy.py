@@ -27,12 +27,20 @@ class Enemy(agent):
         self.remaining_distance = (
             (self.x-x)**2+(self.y-y)**2)**0.5 + np.sum(self.path_distance[self.path_idx:])
 
+    def search_target(self, operators):
+        target_list = []
+        for operator in operators:
+            if self.in_range(operator):
+                target_list.append(operator)
+        return target_list
+
     def action(self, operators):
         path_idx_next, x_next, y_next = self.try_move()
         # 是否被干员挡住,返回挡住的干员,否则返回None
         block_op = self.is_blocked(operators, x_next, y_next)
         self.cooldown_tick()
-        self.attack(self.x, self.y, operators, [block_op])
+        target_list = self.search_target(operators)
+        self.attack(self.x, self.y, target_list, [block_op])
         if block_op:
             return
         self.move(path_idx_next, x_next, y_next)
