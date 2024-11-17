@@ -5,13 +5,12 @@ from config import *
 
 
 class Enemy(agent):
-    def __init__(self, hp, speed, attack, range, attack_interval, armor_p, armor_m, path, able_block=True):
-        super().__init__(hp, attack, attack_interval, armor_p, armor_m)
+    def __init__(self, hp, speed, attack, atk_range, attack_interval, armor_p, armor_m, path, able_block=True):
+        super().__init__(hp, attack, attack_interval, armor_p, armor_m, atk_range)
         x, y = path[0]
         self.x = x  # 位置X
         self.y = y  # 位置Y
         self.speed = speed/2/TICK  # 移动速度
-        self.range = range  # 攻击范围
         self.path = path  # 移动路径
         self.path_idx = 1  # 当前路径点
         self.blocked_by = None

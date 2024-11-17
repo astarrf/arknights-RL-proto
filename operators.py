@@ -6,13 +6,12 @@ from attack import agent
 
 class Operator(agent):
     def __init__(self, x, y, hp, attack, range: list[list], attack_speed, armor_p, armor_m, block_num=0, facing=0):
-        super().__init__(hp, attack, attack_speed, armor_p, armor_m)
         self.x = x
         self.y = y
         self.block_num = block_num
         self.is_blocking = []
         self.facing = facing
-        self.range = []
+        abs_range = []
         for chunk in range:
             if facing == 0:
                 pos = [chunk[0] + x, chunk[1] + y]  # 向右
@@ -22,7 +21,8 @@ class Operator(agent):
                 pos = [-chunk[0] + x, -chunk[1] + y]  # 向左
             elif facing == 3:
                 pos = [-chunk[1] + x, chunk[0] + y]  # 向上
-            self.range.append(pos)
+            abs_range.append(pos)
+        super().__init__(hp, attack, attack_speed, armor_p, armor_m, abs_range)
 
     def action(self, enemies):
         self.cooldown_tick()

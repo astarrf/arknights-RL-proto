@@ -2,7 +2,7 @@ from config import *
 
 
 class agent:
-    def __init__(self, hp, attack, attack_interval, armor_p, armor_m):
+    def __init__(self, hp, attack, attack_interval, armor_p, armor_m, range: float | list):
         self.hp_max = hp
         self.hp = hp
         self.attack = attack  # 攻击力
@@ -10,6 +10,13 @@ class agent:
         self.cooldown = 0  # 攻击冷却
         self.armor_p = armor_p  # 物理护甲
         self.armor_m = armor_m  # 法术护甲
+        self.range = range  # 攻击范围(float为敌方范围，list为我方范围)
+
+    def in_range(self, target):
+        if isinstance(self.range, float):
+            return (target.x - self.x)**2 + (target.y - self.y)**2 <= self.range**2
+        if isinstance(self.range, list):
+            return [round(target.x), round(target.y)] in self.range
 
     def can_attack(self):
         return self.cooldown == 0
