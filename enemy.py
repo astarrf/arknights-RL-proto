@@ -6,7 +6,7 @@ from config import *
 
 class Enemy(agent):
     def __init__(self, hp, speed, attack, atk_range, attack_interval, armor_p, armor_m, path, weight, able_block=True):
-        super().__init__(hp, attack, attack_interval, armor_p, armor_m, atk_range)
+        super().__init__(hp, attack, attack_interval, armor_p, armor_m)
         x, y = path[0]
         self.x = x  # 位置X
         self.y = y  # 位置Y
@@ -30,6 +30,11 @@ class Enemy(agent):
             (self.x-x)**2+(self.y-y)**2)**0.5 + np.sum(self.path_distance[self.path_idx:])
 
     def search_target(self, operators):
+        '''
+
+        :param operators:输入operators实例列表
+        :return: 输出可被攻击干员列表
+        '''
         target_list = []
         for operator in operators:
             if self.in_range(operator):
@@ -55,6 +60,11 @@ class Enemy(agent):
         return None
 
     def in_range(self, target):
+        '''
+
+        :param target: 输入目标干员实例
+        :return: 布尔值，距离是否小于索敌距离
+        '''
         return (target.x - self.x)**2 + (target.y - self.y)**2 <= self.range**2
 
     def try_move(self):

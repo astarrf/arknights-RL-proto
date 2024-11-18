@@ -25,6 +25,11 @@ class Operator(agent):
         super().__init__(hp, attack, attack_speed, armor_p, armor_m)
 
     def search_target(self, enemies):
+        '''
+
+        :param enemies:输入所有敌方实例列表
+        :return: 在索敌范围内敌方列表
+        '''
         target_list = []
         for enemy in enemies:
             if self.in_range(enemy):
@@ -56,6 +61,11 @@ class Operator(agent):
         self.is_blocking.remove(enemy)
 
     def in_range(self, target):
+        '''
+
+        :param target:输入目标实例
+        :return: 输出布尔值，目标实例的x，y坐标是否在攻击范围以内
+        '''
         return [round(target.x), round(target.y)] in self.range
 
     def retreat(self):
