@@ -17,6 +17,7 @@ class Enemy(agent):
         self.weight = weight
         self.able_block = able_block
         self.path_distance = [0]*(len(path)-1)
+        self.range = atk_range
         for i in range(len(path)-1):
             x1, y1 = path[i]
             x2, y2 = path[i+1]
