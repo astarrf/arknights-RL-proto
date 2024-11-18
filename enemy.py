@@ -5,7 +5,7 @@ from config import *
 
 
 class Enemy(agent):
-    def __init__(self, hp, speed, attack, atk_range, attack_interval, armor_p, armor_m, path, able_block=True):
+    def __init__(self, hp, speed, attack, atk_range, attack_interval, armor_p, armor_m, path, weight, able_block=True):
         super().__init__(hp, attack, attack_interval, armor_p, armor_m, atk_range)
         x, y = path[0]
         self.x = x  # 位置X
@@ -14,6 +14,7 @@ class Enemy(agent):
         self.path = path  # 移动路径
         self.path_idx = 1  # 当前路径点
         self.blocked_by = None
+        self.weight = weight
         self.able_block = able_block
         self.path_distance = [0]*(len(path)-1)
         for i in range(len(path)-1):
