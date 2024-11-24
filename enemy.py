@@ -86,6 +86,9 @@ class Enemy(agent):
         self.y = y_next
         self.update_distance()
 
+    def arrive(self):
+        return self.path_idx == -1
+
     def cooldown_tick(self):
         if self.cooldown > 0:
             self.cooldown -= 1
@@ -98,6 +101,15 @@ class Enemy(agent):
     def die(self):
         self.block_release()
 
+    def clone(self):
+        # 创建一个具有相同属性的新 Enemy 实例
+        new_enemy = Enemy(self.hp, self.speed, self.atk, self.range, self.attack_interval,
+                          self.armor_p, self.armor_m, self.path[:], self.weight, self.able_block)
+        # 确保克隆的敌人从路径的起始点开始
+        new_enemy.x, new_enemy.y = self.path[0]
+        new_enemy.path_idx = 1
+        return new_enemy
+
     def draw(self, screen):
         draw.circle(screen, (255, 0, 0),
                     (self.x * 50 + 25, self.y * 50 + 25), 15)
@@ -106,20 +118,63 @@ class Enemy(agent):
                   self.y * 50 + 40, self.hp/self.hp_max*30, 5))
 
 
-class group:
-    def __init__(self, enemies: Enemy, num=1, interval=0):
+class Group:
+    def __init__(self, enemies: Enemy, start_time, num=1, interval=0):
         self.enemies = enemies
+        self.start_time = start_time
         self.remaining = num
         self.interval = interval
-        self.cooldown = 0
+        self.next_spawn_time = start_time
 
-    def cooldown_tick(self):
-        if self.cooldown > 0:
-            self.cooldown -= 1
+    def can_spawn(self, current_time):
+        return self.remaining > 0 and self.next_spawn_time <= current_time
 
     def spawn(self):
-        if self.cooldown == 0 and self.remaining > 0:
-            self.cooldown = self.interval
-            self.remaining -= 1
-            return self.enemies
-        return []
+        new_enemy = self.enemies.clone()  # Enemy 复制自身
+        self.remaining -= 1
+        self.next_spawn_time += self.interval
+        return [new_enemy]
+
+
+class Wave:
+    def __init__(self, groups: list[Group], active_enemies: list[Enemy] = []):
+        # groups 是一个包含多个 enemy 组的列表，每个组包含特定类型的敌人和其出现的时间和数量
+        self.groups = groups
+        self.active_enemies = active_enemies  # 当前活跃的敌人列表
+
+    def spawn_update(self, current_time):
+        # 遍历每个组，检查是否到了生成新敌人的时间
+        for group in self.groups:
+            if group.can_spawn(current_time):
+                new_enemies = group.spawn()
+                self.active_enemies.extend(new_enemies)
+
+    def get_active_enemies(self):
+        # 返回当前活跃的敌人列表
+        return self.active_enemies
+
+    def remove_dead_enemies(self):
+        # 移除已经死亡的敌人
+        for enemy in self.active_enemies[:]:
+            if enemy.hp <= 0:
+                enemy.die()
+                self.active_enemies.remove(enemy)
+
+    def remove_arrived_enemies(self):
+        # 移除到达基地的敌人
+        arrived_num = 0
+        for enemy in self.active_enemies[:]:
+            if enemy.arrive():
+                arrived_num += 1
+                enemy.die()
+                self.active_enemies.remove(enemy)
+        return arrived_num
+
+    def action(self, operators):
+        # 移动每个敌人
+        for enemy in self.active_enemies:
+            enemy.action(operators)
+
+    def draw(self, screen):
+        for enemy in self.active_enemies:
+            enemy.draw(screen)

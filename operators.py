@@ -77,3 +77,31 @@ class Operator(agent):
                     (self.x * 50 + 25, self.y * 50 + 25), 20)
         draw.rect(screen, (51, 153, 255), (self.x * 50 + 5,
                                            self.y * 50 + 40, self.hp/self.hp_max*30, 5))
+
+
+class OperatorGroup:
+    def __init__(self, operator: list[Operator] = []):
+        self.operators = operator
+
+    def add_operator(self, operator: Operator):
+        self.operators.append(operator)
+
+    def retreat_operator(self, operator: Operator):
+        operator.retreat()
+        self.operators.remove(operator)
+
+    def remove_dead_operators(self):
+        for operator in self.operators:
+            if operator.hp <= 0:
+                self.retreat_operator(operator)
+
+    def action(self, enemies):
+        for operator in self.operators:
+            operator.action(enemies)
+
+    def draw(self, screen):
+        for operator in self.operators:
+            operator.draw(screen)
+
+    def __len__(self):
+        return len(self.operators)

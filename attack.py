@@ -5,7 +5,7 @@ class agent:
     def __init__(self, hp, attack, attack_interval, atk_num, armor_p, armor_m):
         self.hp_max = hp
         self.hp = hp
-        self.attack = attack  # 攻击力
+        self.atk = attack  # 攻击力
         self.attack_interval = attack_interval*TICK  # 攻击速度（每多少回合攻击一次）
         self.cooldown = 0  # 攻击冷却
         self.atk_num = atk_num
@@ -23,7 +23,7 @@ class agent:
             self.cooldown -= 1
 
     def attack_enemy(self, enemy, attack_type):
-        enemy.get_hurt(self.attack, attack_type)
+        enemy.get_hurt(self.atk, attack_type)
         self.reset_cooldown()
         # print(f"干员攻击敌人，敌人剩余HP: {enemy.hp}")
 
@@ -48,12 +48,12 @@ class agent:
         :param atk_type: 仇恨过滤器
         :return: 不return，直接进行攻击操作
         '''
-        #基本逻辑 先打阻挡
+        # 基本逻辑 先打阻挡
         if self.atk_num <= len(block_list):
             atk_list = [block_list[i] for i in range(self.atk_num)]
-            #从阻挡列表中获得攻击列表
+            # 从阻挡列表中获得攻击列表
         else:
-            #打数大于阻挡数
+            # 打数大于阻挡数
             atk_list = block_list
             atk_number = self.atk_num - len(block_list)
             for item in block_list:
@@ -62,11 +62,11 @@ class agent:
                 except Exception:
                     print("Error raised")
             if atk_type == "Normal":
-                #最正常的攻击方式 索敌距离基地最近的单位
+                # 最正常的攻击方式 索敌距离基地最近的单位
                 distance_tem = []
                 for enemy in target_list:
                     distance_tem.append(enemy.update_distance())
-                #存储目标的距离
+                # 存储目标的距离
                 dist_max = max(distance_tem)
                 index_list = []
                 for i in range(atk_number):
@@ -75,13 +75,13 @@ class agent:
                     index_list.append(min_index)
                     distance_tem[min_index] = dist_max + 1
                 atk_list = atk_list + [target_list[i] for i in index_list]
-                #拼接列表
+                # 拼接列表
             elif atk_type == "HP down":
-                #低血量索敌
+                # 低血量索敌
                 HP_tem = []
                 for enemy in target_list:
                     HP_tem.append(enemy.hp)
-                #存储目标的距离
+                # 存储目标的距离
                 HP_max = max(HP_tem)
                 index_list = []
                 for i in range(atk_number):
@@ -90,11 +90,3 @@ class agent:
                     index_list.append(min_index)
                     HP_tem[min_index] = HP_max + 1
                 atk_list = atk_list + [target_list[i] for i in index_list]
-
-
-
-
-
-
-
-
