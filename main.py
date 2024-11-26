@@ -82,7 +82,7 @@ class Simulator:
 # 示例运行
 if __name__ == "__main__":
     # 从./operation/01.json中导入operation_config
-    config_path = "./operation/01"
+    config_path = "./arknights-RL-proto/operations/0-1"
     sim = Simulator(config_path)
     # sim.deploy_operator(1, 1, hp=10, attack=3,  range=[
     #     [0, 0], [1, 0], [2, 0], [1, 1], [1, -1]], attack_speed=1, armor_p=0, armor_m=0, facing=2)

@@ -5,8 +5,8 @@ from config import *
 
 
 class Enemy(agent):
-    def __init__(self, hp, speed, attack, atk_range, attack_interval, armor_p, armor_m, path, weight, able_block=True):
-        super().__init__(hp, attack, attack_interval, armor_p, armor_m)
+    def __init__(self, hp, speed, attack, atk_range, attack_interval, atk_num, armor_p, armor_m, path, weight, able_block=True):
+        super().__init__(hp, attack, attack_interval, atk_num, armor_p, armor_m)
         x, y = path[0]
         self.x = x  # 位置X
         self.y = y  # 位置Y
@@ -119,9 +119,10 @@ class Enemy(agent):
 
 
 class Group:
-    def __init__(self, enemies: Enemy, start_time, num=1, interval=0):
+    def __init__(self, enemies: Enemy, start_time, name=None, num=1, interval=0):
         self.enemies = enemies
         self.start_time = start_time
+        self.name = name
         self.remaining = num
         self.interval = interval
         self.next_spawn_time = start_time
